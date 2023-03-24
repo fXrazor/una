@@ -1,0 +1,41 @@
+# Exclude system cache folders
+packages/*
+cache/*
+cache_public/*
+tmp/*
+logs/*
+plugins/*
+node_modules/*
+
+# Exclude main config file
+inc/header*
+
+# Exclude OS X folder attributes
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+.*.swp
+
+cs_fixer_tmp*
+.php_cs.cache
+
+# Exclude tests files
+build.properties
+composer.phar
+tests/vendor
+tests/composer.phar
+samples/img/*
+modules/boonex/acl_api
+modules/boonex/ether
+modules/boonex/market_api
+modules/boonex/media
+modules/boonex/messenger
+modules/boonex/una_mods
+modules/vendor
+
+# Exclude IDE project folder
+.idea
