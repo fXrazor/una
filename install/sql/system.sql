@@ -342,6 +342,7 @@ INSERT INTO `sys_options`(`category_id`, `name`, `caption`, `value`, `type`, `ex
 (@iCategoryId, 'sys_transcoder_queue_storage', '_adm_stg_cpt_option_sys_transcoder_queue_storage', '', 'checkbox', '', '', '', '', 105),
 
 (@iCategoryId, 'sys_session_lifetime_in_min', '_adm_stg_cpt_option_sys_session_lifetime_in_min', '129600', 'digit', '', '', '', '', 110),
+(@iCategoryId, 'sys_session_auth', '_adm_stg_cpt_option_sys_session_auth', '', 'checkbox', '', '', '', '', 112),
 
 (@iCategoryId, 'sys_account_activation_letter', '_adm_stg_cpt_option_sys_account_activation_letter', '', 'checkbox', '', '', '', '', 120),
 
@@ -699,16 +700,31 @@ INSERT INTO `sys_options`(`category_id`, `name`, `caption`, `value`, `type`, `ex
 
 
 --
--- CATEGORY (HIDDEN): API
+-- CATEGORY (HIDDEN): API (general)
 --
-INSERT INTO `sys_options_categories`(`type_id`, `name`, `caption`, `hidden`, `order`) VALUES (@iTypeId, 'api', '_adm_stg_cpt_category_api', 1, 2);
+INSERT INTO `sys_options_categories`(`type_id`, `name`, `caption`, `hidden`, `order`) VALUES (@iTypeId, 'api_general', '_adm_stg_cpt_category_api_general', 1, 2);
 SET @iCategoryId = LAST_INSERT_ID();
 
 INSERT INTO `sys_options`(`category_id`, `name`, `caption`, `value`, `type`, `extra`, `check`, `check_error`, `order`) VALUES
 (@iCategoryId, 'sys_api_enable', '_adm_stg_cpt_option_sys_api_enable', '', 'checkbox', '', '', '', 1),
 (@iCategoryId, 'sys_api_access_by_origin', '_adm_stg_cpt_option_sys_api_access_by_origin', '', 'checkbox', '', '', '', 10),
 (@iCategoryId, 'sys_api_access_by_key', '_adm_stg_cpt_option_sys_api_access_by_key', '', 'checkbox', '', '', '', 20),
-(@iCategoryId, 'sys_api_access_unsafe_services', '_adm_stg_cpt_option_sys_api_access_unsafe_services', '', 'checkbox', '', '', '', 30);
+(@iCategoryId, 'sys_api_access_unsafe_services', '_adm_stg_cpt_option_sys_api_access_unsafe_services', '', 'checkbox', '', '', '', 30),
+(@iCategoryId, 'sys_api_cookie_path', '_adm_stg_cpt_option_sys_api_cookie_path', '/', 'digit', '', '', '', 40),
+(@iCategoryId, 'sys_api_cookie_secure', '_adm_stg_cpt_option_sys_api_cookie_secure', '', 'checkbox', '', '', '', 42),
+(@iCategoryId, 'sys_api_cookie_samesite', '_adm_stg_cpt_option_sys_api_cookie_samesite', 'Lax', 'select', 'None,Lax,Strict', '', '', 44);
+
+
+--
+-- CATEGORY (HIDDEN): API (layout)
+--
+INSERT INTO `sys_options_categories`(`type_id`, `name`, `caption`, `hidden`, `order`) VALUES (@iTypeId, 'api_layout', '_adm_stg_cpt_category_api_layout', 1, 2);
+SET @iCategoryId = LAST_INSERT_ID();
+
+INSERT INTO `sys_options`(`category_id`, `name`, `caption`, `value`, `type`, `extra`, `check`, `check_error`, `order`) VALUES
+(@iCategoryId, 'sys_api_menu_top', '_adm_stg_cpt_option_sys_api_menu_top', 'sys_site', 'select', 'a:3:{s:6:"module";s:6:"system";s:6:"method";s:24:"get_options_api_menu_top";s:5:"class";s:13:"TemplServices";}', '', '', 1),
+(@iCategoryId, 'sys_api_comments_flat', '_adm_stg_cpt_option_sys_api_comments_flat', '', 'checkbox', '', '', '', 10);
+
 
 --
 -- Table structure for table `sys_options_mixes`
@@ -3825,9 +3841,9 @@ INSERT INTO `sys_form_display_inputs` (`display_name`, `input_name`, `visible_fo
 ('sys_review_post', 'cmt_parent_id', 2147483647, 1, 5),
 ('sys_review_post', 'cmt_text', 2147483647, 1, 6),
 ('sys_review_post', 'cmt_mood', 2147483647, 1, 7),
-('sys_review_post', 'cmt_image', 2147483647, 1, 8),
 ('sys_review_post', 'cmt_cf', 2147483647, 1, 9),
 ('sys_review_post', 'cmt_submit', 2147483647, 1, 10),
+('sys_review_post', 'cmt_image', 2147483647, 1, 11),
 
 ('sys_review_edit', 'sys', 2147483647, 1, 1),
 ('sys_review_edit', 'id', 2147483647, 1, 2),
@@ -3836,9 +3852,9 @@ INSERT INTO `sys_form_display_inputs` (`display_name`, `input_name`, `visible_fo
 ('sys_review_edit', 'cmt_parent_id', 2147483647, 1, 5),
 ('sys_review_edit', 'cmt_text', 2147483647, 1, 6),
 ('sys_review_edit', 'cmt_mood', 2147483647, 1, 7),
-('sys_review_edit', 'cmt_image', 2147483647, 1, 8),
 ('sys_review_edit', 'cmt_cf', 2147483647, 1, 9),
 ('sys_review_edit', 'cmt_submit', 2147483647, 1, 10),
+('sys_review_edit', 'cmt_image', 2147483647, 1, 11),
 
 ('sys_report_post', 'sys', 2147483647, 1, 1),
 ('sys_report_post', 'object_id', 2147483647, 1, 2),
@@ -4308,7 +4324,7 @@ INSERT INTO `sys_form_pre_values`(`Key`, `Value`, `Order`, `LKey`, `LKey2`) VALU
 ('sys_report_types', 'other', 5, '_sys_pre_lists_report_types_other', '');
 
 INSERT INTO `sys_form_pre_values`(`Key`, `Value`, `Order`, `LKey`, `LKey2`, `Data`) VALUES
-('sys_vote_reactions', 'like', 1, '_sys_pre_lists_vote_reactions_like', '', 'a:7:{s:3:"use";s:5:"emoji";s:5:"emoji";s:4:"👍";s:4:"icon";s:12:"fa-thumbs-up";s:5:"image";s:904:"<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" stroke-linecap="round" stroke-linejoin="round"></path></svg>";s:5:"color";s:20:"sys-colored col-gray";s:6:"weight";s:1:"1";s:7:"default";s:9:"thumbs-up";}'),
+('sys_vote_reactions', 'like', 1, '_sys_pre_lists_vote_reactions_like', '', 'a:7:{s:3:"use";s:5:"emoji";s:5:"emoji";s:4:"👍";s:4:"icon";s:12:"fa-thumbs-up";s:5:"image";s:904:"<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" stroke-linecap="round" stroke-linejoin="round"></path></svg>";s:5:"color";s:20:"sys-colored col-gray";s:6:"weight";s:1:"1";s:7:"default";a:2:{s:5:"title";s:37:"_sys_pre_lists_vote_reactions_default";s:4:"icon";s:8:"fa-smile";}}'),
 ('sys_vote_reactions', 'love', 2, '_sys_pre_lists_vote_reactions_love', '', 'a:6:{s:3:"use";s:5:"emoji";s:5:"emoji";s:4:"💓";s:4:"icon";s:8:"fa-heart";s:5:"image";s:499:"<svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path></svg>";s:5:"color";s:20:"sys-colored col-red1";s:6:"weight";s:1:"1";}'),
 ('sys_vote_reactions', 'joy', 3, '_sys_pre_lists_vote_reactions_joy', '', 'a:6:{s:3:"use";s:5:"emoji";s:5:"emoji";s:4:"😆";s:4:"icon";s:15:"fa-laugh-squint";s:5:"image";s:789:"<svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6c-.54 0-.828.419-.936.634a1.96 1.96 0 00-.189.866c0 .298.059.605.189.866.108.215.395.634.936.634.54 0 .828-.419.936-.634.13-.26.189-.568.189-.866 0-.298-.059-.605-.189-.866-.108-.215-.395-.634-.936-.634zm4.314.634c.108-.215.395-.634.936-.634.54 0 .828.419.936.634.13.26.189.568.189.866 0 .298-.059.605-.189.866-.108.215-.395.634-.936.634-.54 0-.828-.419-.936-.634a1.96 1.96 0 01-.189-.866c0-.298.059-.605.189-.866zm2.023 6.828a.75.75 0 10-1.06-1.06 3.75 3.75 0 01-5.304 0 .75.75 0 00-1.06 1.06 5.25 5.25 0 007.424 0z" fill-rule="evenodd"></path></svg>";s:5:"color";s:20:"sys-colored col-red3";s:6:"weight";s:1:"1";}'),
 ('sys_vote_reactions', 'surprise', 4, '_sys_pre_lists_vote_reactions_surprise', '', 'a:6:{s:3:"use";s:5:"emoji";s:5:"emoji";s:4:"😲";s:4:"icon";s:11:"fa-surprise";s:5:"image";s:551:"<svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.375 3a1.875 1.875 0 000 3.75h1.875v4.5H3.375A1.875 1.875 0 011.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0112 2.753a3.375 3.375 0 015.432 3.997h3.943c1.035 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 10-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3zM11.25 12.75H3v6.75a2.25 2.25 0 002.25 2.25h6v-9zM12.75 12.75v9h6.75a2.25 2.25 0 002.25-2.25v-6.75h-9z"></path></svg>";s:5:"color";s:20:"sys-colored col-red3";s:6:"weight";s:1:"1";}'),
@@ -4537,6 +4553,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_items` (
   `primary` tinyint(4) NOT NULL DEFAULT '0',
   `collapsed` tinyint(4) NOT NULL DEFAULT '0',
   `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active_api` tinyint(4) NOT NULL DEFAULT '0',
   `copyable` tinyint(4) NOT NULL DEFAULT '1',
   `editable` tinyint(4) NOT NULL DEFAULT '1',
   `order` int(11) NOT NULL,
@@ -4545,7 +4562,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_items` (
 
 -- site menu
 INSERT INTO `sys_menu_items` (`set_name`, `module`, `name`, `title_system`, `title`, `link`, `onclick`, `target`, `icon`, `submenu_object`, `visible_for_levels`, `active`, `copyable`, `order`) VALUES
-('sys_site', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', 'index.php', '', '', 'home col-gray', '', 2147483647, 1, 1, 1),
+('sys_site', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', '', '', '', 'home col-gray', '', 2147483647, 1, 1, 1),
 ('sys_site', 'system', 'about', '_sys_menu_item_title_system_about', '_sys_menu_item_title_about', 'page.php?i=about', '', '', 'info-circle col-blue3-dark', '', 2147483647, 1, 1, 2),
 ('sys_site', 'system', 'search', '_sys_menu_item_title_system_search', '_sys_menu_item_title_search', 'javascript:void(0);', 'bx_menu_slide_inline(\'#bx-sliding-menu-search\', this, \'site\');', '', 'search', '', 2147483647, 1, 1, 3),
 ('sys_site', 'system', 'more-auto', '_sys_menu_item_title_system_more_auto', '_sys_menu_item_title_more_auto', 'javascript:void(0)', '', '', 'ellipsis-v', '', 2147483647, 1, 0, 9999);
@@ -4559,13 +4576,13 @@ INSERT INTO `sys_menu_items` (`set_name`, `module`, `name`, `title_system`, `tit
 
 -- application menu
 INSERT INTO `sys_menu_items` (`set_name`, `module`, `name`, `title_system`, `title`, `link`, `onclick`, `target`, `icon`, `submenu_object`, `visible_for_levels`, `active`, `copyable`, `order`) VALUES
-('sys_application', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', 'index.php', '', '', 'home col-gray-dark', '', 2147483647, 1, 1, 1),
+('sys_application', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', '', '', '', 'home col-gray-dark', '', 2147483647, 1, 1, 1),
 ('sys_application', 'system', 'about', '_sys_menu_item_title_system_about', '_sys_menu_item_title_about', 'page.php?i=about', '', '', 'info-circle col-blue3-dark', '', 2147483647, 1, 1, 2),
 ('sys_application', 'system', 'more-auto', '_sys_menu_item_title_system_more_auto', '_sys_menu_item_title_more_auto', 'javascript:void(0)', '', '', 'ellipsis-v', '', 2147483647, 1, 0, 9999);
 
 -- homepage submenu
 INSERT INTO `sys_menu_items` (`set_name`, `module`, `name`, `title_system`, `title`, `link`, `onclick`, `target`, `icon`, `addon`, `submenu_object`, `visible_for_levels`, `visibility_custom`, `active`, `copyable`, `order`) VALUES
-('sys_homepage_submenu', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', 'index.php', '', '', 'bolt', '', '', 2147483647, '', 0, 1, 1),
+('sys_homepage_submenu', 'system', 'home', '_sys_menu_item_title_system_home', '_sys_menu_item_title_home', '', '', '', 'bolt', '', '', 2147483647, '', 0, 1, 1),
 ('sys_homepage_submenu', 'system', 'explore', '_sys_menu_item_title_system_explore', '_sys_menu_item_title_explore', 'page.php?i=explore', '', '', 'compass ', '', '', 2147483647, '', 0, 1, 2),
 ('sys_homepage_submenu', 'system', 'updates', '_sys_menu_item_title_system_updates', '_sys_menu_item_title_updates', 'page.php?i=updates', '', '', 'fire', '', '', 2147483647, '', 0, 1, 3),
 ('sys_homepage_submenu', 'system', 'trends', '_sys_menu_item_title_system_trends', '_sys_menu_item_title_trends', 'page.php?i=trends', '', '', 'hashtag', '', '', 2147483647, '', 0, 1, 4);
@@ -5591,6 +5608,7 @@ CREATE TABLE IF NOT EXISTS `sys_pages_blocks` (
   `deletable` tinyint(4) NOT NULL DEFAULT '1',
   `copyable` tinyint(4) NOT NULL DEFAULT '1',
   `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active_api` tinyint(4) NOT NULL DEFAULT '0',
   `order` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `object` (`object`),
@@ -6418,5 +6436,5 @@ INSERT INTO `sys_std_pages_widgets`(`page_id`, `widget_id`, `order`) VALUES(@iId
 -- API Page
 --
 INSERT INTO `sys_std_widgets`(`page_id`, `module`, `type`, `url`, `click`, `icon`, `caption`, `cnt_notices`, `cnt_actions`) VALUES
-(@iIdAPI, 'system', 'appearance', '{url_studio}api.php', '', 'wi-api.svg', '_adm_wgt_cpt_api', '', 'a:4:{s:6:"module";s:6:"system";s:6:"method";s:11:"get_actions";s:6:"params";a:0:{}s:5:"class";s:18:"TemplStudioModules";}');
+(@iIdAPI, 'system', 'configuration', '{url_studio}api.php', '', 'wi-api.svg', '_adm_wgt_cpt_api', '', 'a:4:{s:6:"module";s:6:"system";s:6:"method";s:11:"get_actions";s:6:"params";a:0:{}s:5:"class";s:18:"TemplStudioModules";}');
 INSERT INTO `sys_std_pages_widgets`(`page_id`, `widget_id`, `order`) VALUES(@iIdHome, LAST_INSERT_ID(), 14);

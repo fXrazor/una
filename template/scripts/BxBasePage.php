@@ -398,7 +398,7 @@ class BxBasePage extends BxDolPage
     /**
      * Get page array with all cells and blocks
      */
-    public function getPage ()
+    public function getPageAPI ($aBlocks = [])
     {
         $a = [
             'id' => $this->_aObject['id'],
@@ -406,11 +406,44 @@ class BxBasePage extends BxDolPage
             'uri' => $this->_aObject['uri'],
             'author' => $this->_aObject['author'],
             'added' => $this->_aObject['added'],
-            'module' => $this->getModule (),
+            'module' => $this->getModule(),
             'type' => $this->getType (),
-            'layout' => $this->_aObject['layout_id'],
-            'elements' => $this->getPageBlocks (),
+            'layout' => str_replace('.html', '', $this->_aObject['template']),
+            'cover_block' => '',
+            'menu_top' => '',
+            'menu' => '',
+            'menu_bottom' => '',
+            'elements' => $this->getPageBlocksAPI($aBlocks),
         ];
+        
+        
+        if (BxDolCover::getInstance($this)->isCover() && isset($this->_aProfileInfo)){
+            
+            $oModule = BxDolModule::getInstance($this->getModule());
+            
+            $a['cover_block'] = [
+                'profile' => BxDolProfile::getInstance()->getData($this->_aProfileInfo['id'], ['with_info' => true]),
+                'actions_menu' => '',
+                'meta_menu' => '',
+                'cover' => $oModule->serviceGetCover($this->_aProfileInfo['content_id'])
+            ];
+            
+            $CNF = $oModule->_oConfig->CNF;
+            
+            if(!empty($CNF['OBJECT_MENU_VIEW_ENTRY_META'])){
+                $oMetaMenu = BxTemplMenu::getObjectInstance($CNF['OBJECT_MENU_VIEW_ENTRY_META']);
+                $a['cover_block']['meta_menu'] =  $oMetaMenu->getCodeAPI();
+            }
+            
+            if(!empty($CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY'])){
+                $oActionMenu = BxTemplMenu::getObjectInstance($CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY']);
+                $a['cover_block']['actions_menu'] = $oActionMenu->getCodeAPI();
+            }  
+        }
+        
+        $sMenuTop = getParam('sys_api_menu_top');
+        if (!empty($sMenuTop) && ($oMenuTop = BxDolMenu::getObjectInstance($sMenuTop)) !== false)
+            $a['menu_top'] = $oMenuTop->getCodeAPI();
 
         if (($oMenuSubmenu = BxDolMenu::getObjectInstance('sys_site_submenu')) !== false) {
             if(($sSubmenu = $this->getSubMenu()) !== '')
@@ -435,30 +468,48 @@ class BxBasePage extends BxDolPage
         return $a;
     }
 
-    public function getPageBlocks ()
+    public function getPageBlocksAPI($aBlocks = [])
     {
-        $aFieldsUnset = array('cell_id', 'active', 'copyable', 'deletable', 'object', 'text', 'text_updated', 'title_system', 'visible_for_levels');
-        $aCells = $this->_oQuery->getPageBlocks();
-        foreach ($aCells as $sKey => &$aCell) {
-            foreach ($aCell as $i => $aBlock) {     
-                if (!$this->_isVisibleBlock($aBlock) || (bx_is_api() && $aCells[$sKey][$i]['hidden_on'] > 0 && ((int)$aCells[$sKey][$i]['hidden_on'] & 8) > 0)){
-                    unset($aCells[$sKey][$i]);
-                }
-                else{
-                    $this->processPageBlock($aCells[$sKey][$i], true);
-                    $aBlock = $aCells[$sKey][$i];
+        $bBlocks = !empty($aBlocks) && is_array($aBlocks);
+        $aFieldsUnset = ['object', 'cell_id', 'title_system', 'class', 'submenu', 'tabs', 'async', 'visible_for_levels', 'hidden_on', 'type', 'text', 'text_updated', 'help', 'cache_lifetime', 'active', 'active_api', 'copyable', 'deletable', 'order'];
 
-                    $sFunc = '_getBlock' . ucfirst($aBlock['type']);
-                    $aCells[$sKey][$i]['content'] = method_exists($this, $sFunc) ? $this->$sFunc($aBlock) : $aBlock['content'];
-                    $aCells[$sKey][$i]['title'] = $this->getBlockTitle($aBlock);
-                    foreach ($aFieldsUnset as $s)
-                        unset($aCells[$sKey][$i][$s]);
+        $aCells = $this->_oQuery->getPageBlocks(true);
+        foreach($aCells as $sKey => &$aCell) {
+            foreach($aCell as $i => $aBlock) {     
+                if(!$this->_isVisibleBlock($aBlock)) {
+                    unset($aCells[$sKey][$i]);
+                    continue;
                 }
+
+                $this->processPageBlock($aCells[$sKey][$i], true);
+                $aBlock = $aCells[$sKey][$i];
+
+                $sSource = '';
+                if($aBlock['type'] == 'service') {
+                    $aContent = @unserialize($aBlock['content']);
+                    if(isset($aContent['module'], $aContent['method']))
+                        $sSource = $aContent['module'] . ':' . $aContent['method'];
+                }
+
+                if($bBlocks && !in_array($sSource, $aBlocks)) {
+                    unset($aCells[$sKey][$i]);
+                    continue;
+                }
+
+                $sFunc = '_getBlock' . ucfirst($aBlock['type']);
+                $mBlock = method_exists($this, $sFunc) ? $this->$sFunc($aBlock) : $aBlock['content'];
+
+                $aCells[$sKey][$i] = array_merge($aCells[$sKey][$i], [
+                    'title' => isset($mBlock['title']) ? $mBlock['title'] : $this->getBlockTitle($aBlock),
+                    'content' => isset($mBlock['content']) ? $mBlock['content'] : $mBlock,
+                    'menu' => isset($mBlock['menu']) ? $mBlock['menu'] : '',
+                    'source' => $sSource
+                ]);
+                $aCells[$sKey][$i] = array_diff_key($aCells[$sKey][$i], array_flip($aFieldsUnset));
             }
         }
-        
-        $aCells = array_map('array_values', $aCells);
-        return $aCells;
+
+        return array_map('array_values', $aCells);
     }
 
     /**

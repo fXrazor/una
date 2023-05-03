@@ -181,16 +181,6 @@ class BxBaseCmts extends BxDolCmts
         
     }
 
-    function decodeData ($a)
-    {
-        foreach ($a as $i => $r) {
-            if (isset($r['cmt_author_id']))
-                $a[$i]['author_data'] = BxDolProfile::getData($r['cmt_author_id']);
-        }
-
-        return $a;
-    }
-
     /**
      * get full comments block with initializations
      */
@@ -501,7 +491,7 @@ class BxBaseCmts extends BxDolCmts
 
         $iLevel = 0;
         $aStructure = array();
-        $this->_getStructure($aRoot, $aBps, $iLevel, $aStructure);
+        $this->{'_getStructure' . ($this->_bIsApi ? 'API' : '')}($aRoot, $aBps, $iLevel, $aStructure);
 
         return !empty($aStructure) && is_array($aStructure) ? $aStructure : false;
     }
@@ -1490,18 +1480,36 @@ class BxBaseCmts extends BxDolCmts
                     'h' => $iHeight
                 );
 
-                $aTmplImages[] = array(
-                    'style_prefix' => $this->_sStylePrefix,
-                    'bx_if:show_image' => array(
-                        'condition' => $bImage,
-                        'content' => $aTmplVarsFile
-                    ),
-                    'bx_if:show_file' => array(
-                        'condition' => !$bImage,
-                        'content' => $aTmplVarsFile
-                    ),
-                );
+                if (bx_is_api()){
+                    $aTmplImages[] = array(
+                        'is_image' => $bImage,
+                        'file' => $aTmplVarsFile['file'],
+                        'file_id' => $aTmplVarsFile['file_id'],
+                        'file_name' => $aTmplVarsFile['file_name'],
+                        'file_icon' => $aTmplVarsFile['file_icon'],
+                        'file_size' => $aTmplVarsFile['file_size'],
+                        'width' => $aTmplVarsFile['w'],
+                        'height' => $aTmplVarsFile['h'],
+                    );
+                }
+                else{
+                    $aTmplImages[] = array(
+                        'style_prefix' => $this->_sStylePrefix,
+                        'bx_if:show_image' => array(
+                            'condition' => $bImage,
+                            'content' => $aTmplVarsFile
+                        ),
+                        'bx_if:show_file' => array(
+                            'condition' => !$bImage,
+                            'content' => $aTmplVarsFile
+                        ),
+                    );
+                }
             }
+        }
+        
+        if (bx_is_api()){
+            return $aTmplImages;
         }
 
         return $this->_oTemplate->parseHtmlByName('comment_attachments.html', array(

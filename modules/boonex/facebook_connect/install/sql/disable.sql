@@ -22,4 +22,3 @@ DELETE FROM `top`, `toc`, `to` USING `sys_options_types` AS `top` LEFT JOIN `sys
 
 DELETE FROM `sys_objects_page` WHERE `module` = 'bx_facebook';
 DELETE FROM `sys_pages_blocks` WHERE `module` = 'bx_facebook';
-
