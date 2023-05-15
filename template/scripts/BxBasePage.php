@@ -404,6 +404,7 @@ class BxBasePage extends BxDolPage
             'id' => $this->_aObject['id'],
             'title' => $this->_getPageTitle(),
             'uri' => $this->_aObject['uri'],
+            'url' => bx_get('params')[0],
             'author' => $this->_aObject['author'],
             'added' => $this->_aObject['added'],
             'module' => $this->getModule(),
@@ -413,16 +414,19 @@ class BxBasePage extends BxDolPage
             'menu_top' => '',
             'menu' => '',
             'menu_bottom' => '',
+            'menu_add' => '',
             'elements' => $this->getPageBlocksAPI($aBlocks),
         ];
         
         
-        if (BxDolCover::getInstance($this)->isCover() && isset($this->_aProfileInfo)){
-            
+        if (BxDolCover::getInstance($this)->isCover() && isset($this->_aProfileInfo)) {
             $oModule = BxDolModule::getInstance($this->getModule());
-            
+
             $a['cover_block'] = [
-                'profile' => BxDolProfile::getInstance()->getData($this->_aProfileInfo['id'], ['with_info' => true]),
+                'profile' => BxDolProfile::getInstance()->getData($this->_aProfileInfo['id'], [
+                    'get_avatar' => 'getAvatarBig',
+                    'with_info' => true
+                ]),
                 'actions_menu' => '',
                 'meta_menu' => '',
                 'cover' => $oModule->serviceGetCover($this->_aProfileInfo['content_id'])
@@ -453,6 +457,9 @@ class BxBasePage extends BxDolPage
         }
 
         if (isLogged()) {
+            if(($oMenuAddContent = BxDolMenu::getObjectInstance('sys_add_content')) !== false)
+                $a['menu_add'] = $oMenuAddContent->getCodeAPI();
+
             $o = BxDolProfile::getInstance();
             $a['user'] = [
                 'id' => $o->id(),

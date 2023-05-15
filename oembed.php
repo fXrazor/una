@@ -13,7 +13,7 @@ require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 $aLinks = bx_get('l');
 
 bx_import('BxDolEmbed');
-$oEmbed = BxDolEmbed::getObjectInstance('sys_oembed');
+$oEmbed = BxDolEmbed::getObjectInstance('sys_embedly');
 
 if (bx_get('html')){
     echo '<body style="margin:0"><style>iframe{width:100%} .embera-embed-responsive {
@@ -33,7 +33,9 @@ if (bx_get('html')){
     height: 100%;
     border: 0;
 }
-
+.embedly-card{
+    width:600px;
+}
 .bx-base-attach-link-form-field .embera-embed-responsive {
     padding-bottom: 0;
 }
@@ -41,8 +43,8 @@ if (bx_get('html')){
     position: relative;
     width: auto;
     height: auto;
-}</style><div style="max-width:900; margin:0px auto">' . $oEmbed->parseLinkHtml($aLinks) .'</div></body>';
+}</style><script language="javascript" src="'.BX_DOL_URL_ROOT.'/plugins_public/jquery/jquery.min.js"></script>' . $oEmbed->addJsCss() . '<div style="max-width:900; margin:0px auto; justify-content: center; display:flex">' . $oEmbed->getLinkHTML($aLinks, '', '', bx_get('theme')) .'</div></body>';
     exit();
 }
-
+//data-card-theme
 echoJson($oEmbed->parseLinks($aLinks));
